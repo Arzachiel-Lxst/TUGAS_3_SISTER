@@ -1,0 +1,14 @@
+asyncio
+aiohttp
+redis
+pytest
+pytest-asyncio
+locust
+pyyaml
+python-dotenv
+pydantic
+fastapi
+uvicorn
+matplotlib
+pandas
+numpy

@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  node1:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.node
+    environment:
+      - NODE_ID=node1
+      - CLUSTER_NODES=node1:8000,node2:8000,node3:8000
+      - REDIS_HOST=redis
+    ports:
+      - "8001:8000"
+    depends_on:
+      - redis
+
+  node2:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.node
+    environment:
+      - NODE_ID=node2
+      - CLUSTER_NODES=node1:8000,node2:8000,node3:8000
+      - REDIS_HOST=redis
+    ports:
+      - "8002:8000"
+    depends_on:
+      - redis
+
+  node3:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.node
+    environment:
+      - NODE_ID=node3
+      - CLUSTER_NODES=node1:8000,node2:8000,node3:8000
+      - REDIS_HOST=redis
+    ports:
+      - "8003:8000"
+    depends_on:
+      - redis

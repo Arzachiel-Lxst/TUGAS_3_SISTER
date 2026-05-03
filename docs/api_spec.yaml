@@ -1,0 +1,259 @@
+openapi: 3.0.0
+info:
+  title: Distributed Synchronization System API
+  version: 1.0.0
+  description: API for Distributed Lock Manager, Distributed Queue, and Distributed Cache Coherence.
+
+servers:
+  - url: http://localhost:8000
+    description: Local Development Server
+
+paths:
+  /health:
+    get:
+      summary: Health Check
+      description: Checks the health of the node.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  node_id:
+                    type: string
+                    example: node1
+
+  /metrics:
+    get:
+      summary: Get Node Metrics
+      description: Retrieves performance metrics for the node.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uptime:
+                    type: number
+                    format: float
+                  counters:
+                    type: object
+                  latencies:
+                    type: object
+
+  /raft/append_entries:
+    post:
+      summary: Raft Append Entries
+      description: Endpoint for Raft AppendEntries RPC.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                term:
+                  type: integer
+                leader_id:
+                  type: string
+                prev_log_index:
+                  type: integer
+                prev_log_term:
+                  type: integer
+                entries:
+                  type: array
+                  items:
+                    type: object
+                leader_commit:
+                  type: integer
+      responses:
+        '200':
+          description: Success or Failure
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: boolean
+                  type: integer
+
+  /raft/request_vote:
+    post:
+      summary: Raft Request Vote
+      description: Endpoint for Raft RequestVote RPC.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                term:
+                  type: integer
+                candidate_id:
+                  type: string
+                last_log_index:
+                  type: integer
+                last_log_term:
+                  type: integer
+      responses:
+        '200':
+          description: Vote Granted or Denied
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: boolean
+                  type: integer
+
+  /lock/acquire:
+    post:
+      summary: Acquire Distributed Lock
+      description: Acquires a distributed lock for a given resource.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                resource_id:
+                  type: string
+                client_id:
+                  type: string
+                lock_type:
+                  type: string
+                  enum: [shared, exclusive]
+      responses:
+        '200':
+          description: Lock acquired successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+
+  /lock/release:
+    post:
+      summary: Release Distributed Lock
+      description: Releases a previously acquired distributed lock.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                resource_id:
+                  type: string
+                client_id:
+                  type: string
+      responses:
+        '200':
+          description: Lock released successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+
+  /queue/enqueue:
+    post:
+      summary: Enqueue Message
+      description: Adds a message to the distributed queue.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: object
+      responses:
+        '200':
+          description: Message enqueued successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+
+  /queue/dequeue:
+    post:
+      summary: Dequeue Message
+      description: Retrieves and removes a message from the distributed queue.
+      responses:
+        '200':
+          description: Message dequeued successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: object
+
+  /cache/read:
+    post:
+      summary: Read from Cache
+      description: Reads data from the distributed cache.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+      responses:
+        '200':
+          description: Data read from cache
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+
+  /cache/write:
+    post:
+      summary: Write to Cache
+      description: Writes data to the distributed cache.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                data:
+                  type: object
+      responses:
+        '200':
+          description: Data written to cache
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
